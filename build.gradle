@@ -1,0 +1,56 @@
+//import org.apache.co
+
+plugins {
+    id "au.com.dius.pact" version "3.3.5"
+}
+
+version '1.0.0'
+
+apply plugin:'java'
+
+repositories{
+    maven {
+        url "https://repo.maven.apache.org/maven2"
+    }
+
+    mavenLocal()
+}
+
+dependencies{
+    compile 'junit:junit:4.12'
+    compile 'org.slf4j:slf4j-log4j12:1.7.21'
+    compile 'org.apache.commons:commons-lang3:3.10'
+
+    compile 'au.com.dius:pact-jvm-provider-junit_2.12:3.6.15'
+    compile 'au.com.dius:pact-jvm-consumer-junit_2.12:3.6.15'
+    compile 'com.google.code.gson:gson:2.8.0'
+    compile 'org.apache.tika:tika-parsers:1.14'
+    compile 'io.rest-assured:rest-assured:3.3.0'
+}
+
+test {
+    useJUnit()
+    systemProperty "env", System.getProperty("env")
+    systemProperty "pact.verifier.publishResults", true
+    //systemProperty "brokerHost", StringUtils.isBlank(System.getProperty("brokerHost")) ? "localhost" : System.getProperty("brokerHost")
+    //systemProperty "brokerPort", StringUtils.isBlank(System.getProperty("brokerPort")) ? "9006" : System.getProperty("brokerPort")
+
+    filter {
+        String filter = System.getProperty("testFilter")
+        //all classes in package, recursively
+       includeTestsMatching filter
+    }
+}
+//
+pact {
+    publish {
+//        String brokerHost = StringUtils.isBlank(System.getProperty("brokerHost")) ? "localhost" : System.getProperty("brokerHost")
+ //       String brokerPort = StringUtils.isBlank(System.getProperty("brokerPort")) ? "9006" : System.getProperty("brokerPort")
+        String brokerHost = "localhost";
+        String brokerPort = "9006";
+        pactDirectory =  System.getProperty("user.dir") + '/build/pacts' // defaults to $buildDir/pacts
+        pactBrokerUrl = 'http://'+brokerHost+ ':'+ brokerPort + '/ui/relationships'
+    }
+}
+
+pactPublish.dependsOn test
